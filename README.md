@@ -1,41 +1,38 @@
 # Benchmarking Multimodal Transformers
 
-This repository contains a Jupyter notebook and supporting files used to benchmark several multimodal transformer models for image-caption retrieval, captioning, and zero-shot image classification. The analysis, embeddings, captions, and results are stored under `vlm_benchmark_storage/`.
+This repository collects code, data and results used to benchmark several multimodal transformer models for three tasks:
 
-## Contents
+- Retrieval (image-to-text and text-to-image using embedding similarity)
+- Captioning (automatic caption generation)
+- Zero-shot classification (text-based zero-shot labels or model-based zero-shot predictions)
 
-- `Benchmarking Multimodal Transformers for Retrieval, Captioning and Zero-Shot Classification.ipynb` — main notebook used for running experiments and generating results.
-- `vlm_benchmark_storage/` — storage for captions, embeddings and results
-  - `captions/` — text caption outputs from captioning models (e.g., `blip_captions.txt`, `blip2_captions.txt`).
-  - `embeddings/` — numpy arrays of image and caption embeddings (e.g., `blip_img_embeds.npy`, `clip_cap_embeds.npy`).
-  - `results/` — per-model JSON results and an aggregated `complete_comparison.csv`.
+The primary analysis is in the notebook `Benchmarking Multimodal Transformers for Retrieval, Captioning and Zero-Shot Classification.ipynb`. Supporting data, embeddings and evaluation outputs live in `vlm_benchmark_storage/`.
 
-## Purpose
+**Repository layout**
+- `Benchmarking Multimodal Transformers for Retrieval, Captioning and Zero-Shot Classification.ipynb` — analysis notebook (main entrypoint).
+- `vlm_benchmark_storage/` — storage for inputs and outputs used by the notebook:
+  - `captions/` — per-model caption text files (one caption per image, same image order used across files).
+  - `embeddings/` — saved numpy arrays of image and caption embeddings (npy/npz). Naming convention: `{model}_img_embeds.npy` and `{model}_cap_embeds.npy`.
+  - `results/` — per-model JSON results and `complete_comparison.csv` that aggregates key metrics.
+- `README.md`, `.gitignore`, `requirements.txt` — repo metadata and environment configuration.
 
-The project compares modern multimodal transformer pipelines across three tasks:
-- Retrieval (image-to-text and text-to-image using embeddings)
-- Captioning (automatically generating captions for images)
-- Zero-shot classification (using image- or text-based zero-shot approaches)
+## Quick start (Windows PowerShell)
 
-The notebook implements the data loading, embedding computation, similarity evaluation, and result aggregation. It produces the files under `vlm_benchmark_storage/results/` for later analysis.
-
-## Quick Start (Windows PowerShell)
-
-1. Create and activate a Python virtual environment (recommended):
+1) Create and activate a virtual environment:
 
 ```powershell
-python -m venv .venv; 
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-2. Install required packages (example list):
+2) Install dependencies from the provided `requirements.txt`:
 
 ```powershell
-pip install --upgrade pip
-pip install notebook jupyterlab numpy pandas matplotlib scikit-learn pillow torch torchvision transformers sentence-transformers
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-3. Start Jupyter and open the notebook:
+3) Launch Jupyter and open the notebook:
 
 ```powershell
 jupyter lab
@@ -43,45 +40,96 @@ jupyter lab
 jupyter notebook "Benchmarking Multimodal Transformers for Retrieval, Captioning and Zero-Shot Classification.ipynb"
 ```
 
-4. Run notebook cells sequentially. The notebook expects the `vlm_benchmark_storage/` folder to be present with the example files.
+4) Run the notebook cells in order. The notebook expects `vlm_benchmark_storage/` to exist and contain the example files shipped with this repository.
 
-## Reproducing Results
-
-- If you want to regenerate embeddings or captions for a new model: add caption outputs to `vlm_benchmark_storage/captions/` and embeddings (image and caption) to `vlm_benchmark_storage/embeddings/` following the naming pattern used in the repo. Then re-run the notebook cells that compute evaluations — results will be saved to `vlm_benchmark_storage/results/`.
-- The aggregated metrics are written to `vlm_benchmark_storage/results/complete_comparison.csv` and per-model JSON files (e.g., `blip_results.json`).
-
-## Adding a New Model
-
-1. Generate captions and save them to `vlm_benchmark_storage/captions/{model}_captions.txt` (one caption per image, same order as the image list used in the notebook).
-2. Compute image embeddings and caption embeddings and save as numpy `.npy` files to `vlm_benchmark_storage/embeddings/` using the naming convention `{model}_img_embeds.npy` and `{model}_cap_embeds.npy`.
-3. Re-run evaluation cells in the notebook. A new JSON result will be created in `vlm_benchmark_storage/results/` and the CSV will be updated.
-
-## Interpreting Results
-
-- Per-model JSON files contain the evaluation metrics and sample outputs used for debugging.
-- `complete_comparison.csv` aggregates key metrics across models for quick comparison (e.g., retrieval recall@k, captioning CIDEr/BLEU/etc., and zero-shot accuracy).
-
-## Uploading to GitHub
-
-If this folder is a git repository already, use these commands (PowerShell):
+Tip: to run the notebook non-interactively and save outputs, use `nbconvert`:
 
 ```powershell
-git add README.md "Benchmarking Multimodal Transformers for Retrieval, Captioning and Zero-Shot Classification.ipynb" vlm_benchmark_storage/
-git commit -m "Add README and benchmark notebook/results"
-git push origin main
+jupyter nbconvert --to notebook --execute "Benchmarking Multimodal Transformers for Retrieval, Captioning and Zero-Shot Classification.ipynb" --output executed.ipynb
 ```
 
-If you do not have a remote yet, create a GitHub repo and follow the instructions to add `origin` and push.
+## Expected embeddings format
 
-## Notes and Tips
+- Image embeddings: numpy array with shape `(N, D_img)` saved as `{model}_img_embeds.npy`.
+- Caption embeddings/text embeddings: numpy array with shape `(N, D_text)` saved as `{model}_cap_embeds.npy`.
+- `N` must match across models (same image ordering) for retrieval evaluation.
 
-- Large embedding files can be sizable — consider using Git LFS for any large binary arrays you want tracked in the repo.
-- When running on GPUs, ensure `torch` is installed with CUDA matching your drivers; otherwise the CPU-only runtime will still work but will be slower.
-- If you want, I can prepare a `requirements.txt` or `environment.yml` for conda, or help set up Git LFS and a `.gitattributes` file.
+Example Python snippet to load embeddings and compute cosine similarity scores:
 
-## Contact
+```python
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
-If you want me to push these changes to a remote, or to add a `requirements.txt`, say so and I will prepare the next edits.
+img = np.load('vlm_benchmark_storage/embeddings/clip_img_embeds.npy')  # (N, D)
+cap = np.load('vlm_benchmark_storage/embeddings/clip_cap_embeds.npy')  # (N, D)
+scores = cosine_similarity(img, cap)  # shape (N, N)
+```
+
+## How to add a new model
+
+1. Save captions: `vlm_benchmark_storage/captions/{model}_captions.txt` (one caption per image, same order).
+2. Save embeddings: `vlm_benchmark_storage/embeddings/{model}_img_embeds.npy` and `{model}_cap_embeds.npy`.
+3. Re-run the notebook cells that compute evaluation metrics. New results will be written to `vlm_benchmark_storage/results/` and the `complete_comparison.csv` file will be updated.
+
+## Interpreting results
+
+- Per-model JSON files (in `vlm_benchmark_storage/results/`) contain detailed metrics and sample predictions.
+- `complete_comparison.csv` contains aggregated metrics (e.g., retrieval recall@1/5/10, captioning scores such as BLEU/CIDEr if computed, and zero-shot accuracy).
+
+If a metric is unclear, open the JSON file for samples and the notebook cell that computes it to inspect how it is derived.
+
+## Pushing this repository to GitHub
+
+1. Initialize or confirm git state and add remote (one-time):
+
+```powershell
+git init  # if not already a repo
+git remote add origin https://github.com/R15n1k/Benchmarking-Multimodal-Transformers-for-Retrieval-Captioning-and-Zero-Shot-Classification.git
+```
+
+2. Make sure `.gitignore` excludes large embedding files (recommended):
+
+```text
+vlm_benchmark_storage/embeddings/*.npy
+.venv/
+```
+
+3. Commit and push (recommended flow):
+
+```powershell
+git add .
+git commit -m "Initial project files: notebook, data layout, README"
+git branch -M main
+git push -u origin main
+```
+
+If `git push` fails because of very large objects (GitHub limit is ~2GB per object), either remove large files from the repo or use Git LFS. See below.
+
+### Handling large files
+
+- Safe (recommended): keep embeddings outside git, upload to cloud storage and document download instructions in `README.md` — this avoids large pushes and keeps repo small.
+- Track with Git LFS: to store large binaries in LFS and migrate existing `.npy` objects:
+
+```powershell
+git lfs install
+git lfs track "*.npy"
+git add .gitattributes
+git commit -m "Track .npy with Git LFS"
+git lfs migrate import --include="vlm_benchmark_storage/embeddings/*.npy"
+git push --force --set-upstream origin main
+```
+
+Warning: `git lfs migrate` rewrites history and requires a forced push. Only use it if you understand the implications for collaborators.
+
+## Reproducibility & environment
+
+- A `requirements.txt` is provided for pip installs. On GPU machines, install a CUDA-compatible `torch` wheel (see https://pytorch.org/get-started/locally).
+- To create a conda environment instead, create an `environment.yml` and install packages accordingly.
+
+## Notes and suggestions
+
+- Consider storing large experimental artifacts (embeddings, full image sets) on cloud storage (S3, GDrive, Zenodo) and add small example subsets to the repo for CI and demos.
+- Add a short `run.sh` / `run.ps1` that reproduces the evaluation for a single model to simplify automation.
 
 ---
 Generated on: 2025-11-25

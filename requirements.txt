@@ -1,0 +1,18 @@
+notebook>=6.5
+jupyterlab>=4.0
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.6
+scikit-learn>=1.2
+pillow>=9.0
+torch>=2.1.0
+torchvision>=0.16.0
+transformers>=4.30
+sentence-transformers>=2.2
+tqdm
+scipy
+seaborn
+
+# Optional (faiss): installation varies by OS. On Linux use 'pip install faiss-cpu',
+# on Windows consider using conda or a prebuilt wheel from a trusted source.
+# faiss-cpu
