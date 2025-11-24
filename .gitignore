@@ -1,0 +1,14 @@
+# Ignore large embedding arrays and binary data
+vlm_benchmark_storage/embeddings/*.npy
+vlm_benchmark_storage/embeddings/*.npz
+vlm_benchmark_storage/embeddings/
+
+# Ignore common large or local files
+.venv/
+*.ckpt
+*.pt
+*.pth
+.ipynb_checkpoints/
+.vscode/
+.DS_Store
+

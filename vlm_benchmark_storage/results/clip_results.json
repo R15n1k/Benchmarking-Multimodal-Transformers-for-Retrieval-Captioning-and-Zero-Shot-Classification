@@ -1,0 +1,27 @@
+{
+  "model": "CLIP",
+  "retrieval": {
+    "recall@1": 0.5676,
+    "recall@5": 0.8046,
+    "recall@10": 0.8824,
+    "recall@50": 0.9812,
+    "mrr": 0.6752109905241966,
+    "median_rank": 1.0
+  },
+  "classification": {
+    "accuracy": 0.42900302114803623,
+    "f1_macro": 0.39198819362755455,
+    "f1_micro": 0.42900302114803623,
+    "precision_macro": 0.4034819415912752,
+    "recall_macro": 0.5211406041864513,
+    "top5_accuracy": 0.7331319234642497,
+    "mean_confidence": 0.013546697795391083,
+    "ece": 0.41545632335264515
+  },
+  "captioning": null,
+  "efficiency": {
+    "latency_ms": 22.53103256225586,
+    "memory_mb": 594.8525390625,
+    "throughput": 77.75165277678279
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "model": "FLAVA",
+  "retrieval": {
+    "recall@1": 0.3964,
+    "recall@5": 0.7112,
+    "recall@10": 0.8182,
+    "recall@50": 0.9756,
+    "mrr": 0.5379287102056646,
+    "median_rank": 2.0
+  },
+  "classification": {
+    "accuracy": 0.4350453172205438,
+    "f1_macro": 0.3861287030391126,
+    "f1_micro": 0.4350453172205438,
+    "precision_macro": 0.3719066632101832,
+    "recall_macro": 0.558608198491792,
+    "top5_accuracy": 0.6576032225579054,
+    "mean_confidence": 0.014614350162446499,
+    "ece": 0.4204309670580973
+  },
+  "captioning": null,
+  "efficiency": {
+    "latency_ms": 46.10800743103027,
+    "memory_mb": 1024.42626953125,
+    "throughput": 41.526922929363224
+  }
+}
