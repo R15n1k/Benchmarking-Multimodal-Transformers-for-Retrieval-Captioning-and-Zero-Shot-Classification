@@ -125,11 +125,3 @@ Warning: `git lfs migrate` rewrites history and requires a forced push. Only use
 
 - A `requirements.txt` is provided for pip installs. On GPU machines, install a CUDA-compatible `torch` wheel (see https://pytorch.org/get-started/locally).
 - To create a conda environment instead, create an `environment.yml` and install packages accordingly.
-
-## Notes and suggestions
-
-- Consider storing large experimental artifacts (embeddings, full image sets) on cloud storage (S3, GDrive, Zenodo) and add small example subsets to the repo for CI and demos.
-- Add a short `run.sh` / `run.ps1` that reproduces the evaluation for a single model to simplify automation.
-
----
-Generated on: 2025-11-25
